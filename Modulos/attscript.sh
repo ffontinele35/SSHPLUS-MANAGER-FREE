@@ -28,7 +28,7 @@ tput cnorm
 }
 echo ""
 vrs1=$(cat /bin/versao)
-vrs2=$(wget -qO- https://raw.githubusercontent.com/twossh/SSHPLUS-MANAGER-FREE/master/versao | sed -n '1 p')
+vrs2=$(wget -qO- https://raw.githubusercontent.com/ffontinele35/SSHPLUS-MANAGER-FREE/master/versao | sed -n '1 p')
 [[ ! -e /bin/versao ]] && rm -rf /bin/menu
 echo -e "   SSHPlus" | figlet
 echo ""
@@ -51,7 +51,7 @@ else
     echo ""
     echo -e "\033[1;32mAtualizando script..."
     sleep 3
-    wget https://raw.githubusercontent.com/twossh/SSHPLUS-MANAGER-FREE/master/sshplus.sh 2>/dev/null
+    wget https://raw.githubusercontent.com/ffontinele35/SSHPLUS-MANAGER-FREE/master/sshplus.sh 2>/dev/null
     chmod +x sshplus.sh
     ./sshplus.sh
     clear
