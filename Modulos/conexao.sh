@@ -712,7 +712,7 @@ else
 	echo ""
 	echo -e "\033[1;32mINSTALANDO O SSL TUNNEL !\033[1;33m"
 	echo ""
-	wget https://raw.githubusercontent.com/twossh/SSHPLUS-MANAGER-FREE/master/Install/stunnel4 > /dev/null 2>&1
+	wget https://raw.githubusercontent.com/ffontinele35/SSHPLUS-MANAGER-FREE/master/Install/stunnel4 > /dev/null 2>&1
 	fun_bar 'apt-get update -y' 'apt-get install stunnel4 -y'
 	echo ""
 	echo -e "\033[1;32mCONFIGURANDO O SSL TUNNEL !\033[0m"
