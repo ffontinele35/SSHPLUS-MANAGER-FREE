@@ -143,7 +143,7 @@ else
 clear
 echo -e "\E[44;1;37m              INSTALADOR SQUID                \E[0m"
 echo ""
-echo -e "\033[1;33mINSTALANDO SQUID NA PORTA \033[1;32m80\033[0m" 
+echo -e "\033[1;33mINSTALANDO SQUID NAS PORTAS \033[1;32m80\033[1;37m/\033[1;32m8080\033[1;37m/\033[1;32m3128\033[1;37m/\033[1;32m8799\033[0m" 
 echo ""
 IP=$(wget -qO- ipv4.icanhazip.com)
 echo -ne "\033[1;32mPARA CONTINUAR CONFIRME SEU IP: \033[1;37m"; read -e -i $IP ipdovps
@@ -178,7 +178,7 @@ echo ".claro.com.br/
 echo "acl url1 dstdomain -i 127.0.0.1
 acl url2 dstdomain -i localhost
 acl url3 dstdomain -i $ipdovps
-acl url4 dstdomain -i /SSHPLUS?
+acl url4 dstdomain -i /VIP-VPS?
 acl payload url_regex -i "$var_pay"
 acl all src 0.0.0.0/0
 
@@ -191,8 +191,11 @@ http_access deny all
  
 #Portas
 http_port 80
+http_port 8080
+http_port 3128
+http_port 8799
 
-visible_hostname SSHPLUS
+visible_hostname VIP-VPS
  
 via off
 forwarded_for off
@@ -201,6 +204,7 @@ if [ -f "/usr/sbin/ufw" ] ; then
 	ufw allow 443/tcp ; ufw allow 80/tcp ; ufw allow 3128/tcp ; ufw allow 8799/tcp ; ufw allow 8080/tcp
 fi
 grep -v "^Port 443" /etc/ssh/sshd_config > /tmp/ssh && mv /tmp/ssh /etc/ssh/sshd_config
+echo "Port 443" >> /etc/ssh/sshd_config
 grep -v "^PasswordAuthentication yes" /etc/ssh/sshd_config > /tmp/passlogin && mv /tmp/passlogin /etc/ssh/sshd_config
 echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
 sqd_conf () {
@@ -459,8 +463,7 @@ fun_drop () {
 			echo""
 			echo -ne "\033[1;32mQUAL A PORTA \033[1;33m?\033[1;37m "; read porta
 			if [[ -z "$porta" ]]; then
-				echo ""
-				echo -e "\033[1;31mPorta invalida!"
+echo -e "\033[1;31mPorta invalida!"
 				sleep 3
 				clear
 				fun_conexao
@@ -712,7 +715,7 @@ else
 	echo ""
 	echo -e "\033[1;32mINSTALANDO O SSL TUNNEL !\033[1;33m"
 	echo ""
-	wget https://raw.githubusercontent.com/ffontinele35/SSHPLUS-MANAGER-FREE/master/Install/stunnel4 > /dev/null 2>&1
+	wget http://www.painelweb.tk/master/Install/stunnel4 > /dev/null 2>&1
 	fun_bar 'apt-get update -y' 'apt-get install stunnel4 -y'
 	echo ""
 	echo -e "\033[1;32mCONFIGURANDO O SSL TUNNEL !\033[0m"
@@ -724,11 +727,8 @@ else
 	fi
 	ssl_conf () {
 echo -e "client = no
-cert = /etc/stunnel/stunnel.pem
-socket = a:SO_REUSEADDR=1
-socket = l:TCP_NODELAY=1
-socket = r:TCP_NODELAY=1
 [$var3]
+cert = /etc/stunnel/stunnel.pem
 accept = $porta
 connect = 127.0.0.1:22" > /etc/stunnel/stunnel.conf
     }
@@ -884,7 +884,7 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 	do
 		clear
 	    opnp=$(cat /etc/openvpn/server.conf |grep "port" |awk {'print $2'})
-	    if [ -d /var/www/html/openvpn ] > /dev/nell; then
+if [ -d /var/www/html/openvpn ] > /dev/nell; then
 	    	ovpnweb=$(echo -e "\033[1;32mON")
 	    else
 	    	ovpnweb=$(echo -e "\033[1;31mOFF")
@@ -1116,7 +1116,7 @@ if [[ -e /etc/openvpn/server.conf ]]; then
                 			done
                 		done
                 		tput cnorm
-                	}
+}
                 	echo ""
                 	echo -ne "\033[1;32mPERMITINDO MULTILOGIN\033[1;32m.\033[1;33m.\033[1;31m. \033[1;33m"
                 	helice
@@ -1246,7 +1246,7 @@ else
 	echo -ne "\033[1;32mPARA CONTINUAR CONFIRME SEU IP: \033[1;37m"; read -e -i $IP IP
 	if [[ -z "$IP" ]]; then
 				echo ""
-				echo -e "\033[1;31mIP invalido!"
+echo -e "\033[1;31mIP invalido!"
 				sleep 3
 				fun_conexao
 	fi
@@ -1479,14 +1479,25 @@ exit 0' > $RCLOCAL
 	# client-common.txt is created so we have a template to add further users later
 	echo "client
 dev tun
-remote $IP $porta $PROTOCOL
-http-proxy-option CUSTOM-HEADER Host $IP
+proto $PROTOCOL
+sndbuf 0
+rcvbuf 0
+setenv opt method GET
+remote /SSHPLUS? $porta
+http-proxy-option CUSTOM-HEADER Host portalrecarga.vivo.com.br/recarga
 http-proxy $IP 80
+resolv-retry 5
+nobind
+persist-key
+persist-tun
 remote-cert-tls server
 cipher AES-256-CBC
 comp-lzo yes
+setenv opt block-outside-dns
 key-direction 1
+verb 3
 auth-user-pass
+keepalive 10 20
 float" > /etc/openvpn/client-common.txt
 	# Generates the custom client.ovpn
 	newclient "SSHPLUS"
@@ -1599,7 +1610,7 @@ fun_socks () {
 			fi
 			verif_ptrs
 			echo ""
-			echo -e "\033[1;32mINICIANDO O PROXY SOCKS NA PORTA \033[1;31m$porta\033[1;33m"
+echo -e "\033[1;32mINICIANDO O PROXY SOCKS NA PORTA \033[1;31m$porta\033[1;33m"
 			echo ""
 			abrirptsks () {
 				sleep 1
@@ -1716,7 +1727,7 @@ _system=$(printf '%-14s' "$system")
 _hora=$(printf '%(%H:%M:%S)T')
 clear
 echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo -e "\E[41;1;37m               ❖ SSHPLUS MANAGER ❖                \E[0m"
+echo -e "\E[41;1;37m               ❖ @FFONTINELE ❖                \E[0m"
 echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 echo -e "\033[1;32mSISTEMA            MEMÓRIA RAM      PROCESSADOR "
 echo -e "\033[1;31mOS: \033[1;37m$_system \033[1;31mTotal:\033[1;37m$_ram \033[1;31mNucleos: \033[1;37m$_core\033[0m"
