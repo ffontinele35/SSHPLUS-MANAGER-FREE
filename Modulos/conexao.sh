@@ -1727,7 +1727,7 @@ _system=$(printf '%-14s' "$system")
 _hora=$(printf '%(%H:%M:%S)T')
 clear
 echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo -e "\E[41;1;37m               ❖ @FFONTINELE ❖                \E[0m"
+echo -e "\E[41;1;37m               ❖ @FONTINELE ❖                \E[0m"
 echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 echo -e "\033[1;32mSISTEMA            MEMÓRIA RAM      PROCESSADOR "
 echo -e "\033[1;31mOS: \033[1;37m$_system \033[1;31mTotal:\033[1;37m$_ram \033[1;31mNucleos: \033[1;37m$_core\033[0m"
