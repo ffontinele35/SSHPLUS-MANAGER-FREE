@@ -1,4 +1,5 @@
 #!/bin/bash
+
 if [[ -e /usr/lib/licence ]]; then
 ram1=$(free -h | grep -i mem | awk {'print $2'})
 ram2=$(free -h | grep -i mem | awk {'print $4'})
@@ -364,10 +365,10 @@ fun_drop () {
 		echo ""
 		echo -e "\033[1;33mPORTAS\033[1;37m: \033[1;32m$dpbr"
 		echo ""
-		echo -e "\033[1;33m[\033[1;31m1\033[1;33m] \033[1;33mLIMITER DROPBEAR $stats\033[0m"
-		echo -e "\033[1;33m[\033[1;31m2\033[1;33m] \033[1;33mALTERAR PORTA DROPBEAR\033[0m"
-		echo -e "\033[1;33m[\033[1;31m3\033[1;33m] \033[1;33mREMOVER DROPBEAR\033[0m"
-		echo -e "\033[1;33m[\033[1;31m0\033[1;33m] \033[1;33mVOLTAR\033[0m"
+		echo -e "\033[1;31m[\033[1;36m1\033[1;31m] \033[1;37m• \033[1;33mLIMITER DROPBEAR $stats\033[0m"
+		echo -e "\033[1;31m[\033[1;36m2\033[1;31m] \033[1;37m• \033[1;33mALTERAR PORTA DROPBEAR\033[0m"
+		echo -e "\033[1;31m[\033[1;36m3\033[1;31m] \033[1;37m• \033[1;33mREMOVER DROPBEAR\033[0m"
+		echo -e "\033[1;31m[\033[1;36m0\033[1;31m] \033[1;37m• \033[1;33mVOLTAR\033[0m"
 		echo ""
 		echo -ne "\033[1;32mOQUE DESEJA FAZER \033[1;33m?\033[1;37m "; read resposta
 		if [[ "$resposta" = '1' ]]; then
@@ -463,7 +464,8 @@ fun_drop () {
 			echo""
 			echo -ne "\033[1;32mQUAL A PORTA \033[1;33m?\033[1;37m "; read porta
 			if [[ -z "$porta" ]]; then
-echo -e "\033[1;31mPorta invalida!"
+				echo ""
+				echo -e "\033[1;31mPorta invalida!"
 				sleep 3
 				clear
 				fun_conexao
@@ -592,23 +594,13 @@ echo -e "\033[1;31mPorta invalida!"
 
 inst_ssl () {	
 if netstat -nltp|grep 'stunnel4' 1>/dev/null 2>/dev/null;then
-	if [ -d "/etc/squid/" ]; then
-		var_sqd="/etc/squid/squid.conf"
-	elif [ -d "/etc/squid3/" ]; then
-		var_sqd="/etc/squid3/squid.conf"
-	fi
-	if netstat -nltp|grep 'stunnel4' > /dev/null; then
-		sslt=$(netstat -nplt |grep stunnel4 |awk {'print $4'} |awk -F ":" {'print $2'} |xargs)
-	else
-        sslt="\033[1;31mINDISPONIVEL"
-    fi
+	[[ $(netstat -nltp|grep 'stunnel4'| wc -l) != '0' ]] && sslt=$(netstat -nplt |grep stunnel4 |awk {'print $4'} |awk -F ":" {'print $2'} |xargs) || sslt="\033[1;31mINDISPONIVEL"
     echo -e "\E[44;1;37m              GERENCIAR SSL TUNNEL               \E[0m"
+    echo -e "\n\033[1;33mPORTAS\033[1;37m: \033[1;32m$sslt"
     echo ""
-    echo -e "\033[1;33mPORTAS\033[1;37m: \033[1;32m$sslt"
-    echo ""
-    echo -e "\033[1;33m[\033[1;31m1\033[1;33m] \033[1;33mALTERAR PORTA SSL TUNNEL\033[0m"
-    echo -e "\033[1;33m[\033[1;31m2\033[1;33m] \033[1;33mREMOVER SSL TUNNEL\033[0m"
-    echo -e "\033[1;33m[\033[1;31m0\033[1;33m] \033[1;33mVOLTAR\033[0m"
+    echo -e "\033[1;31m[\033[1;36m1\033[1;31m] \033[1;37m• \033[1;33mALTERAR PORTA SSL TUNNEL\033[0m"
+    echo -e "\033[1;31m[\033[1;36m2\033[1;31m] \033[1;37m• \033[1;33mREMOVER SSL TUNNEL\033[0m"
+    echo -e "\033[1;31m[\033[1;36m0\033[1;31m] \033[1;37m• \033[1;33mVOLTAR\033[0m"
     echo ""
     echo -ne "\033[1;32mOQUE DESEJA FAZER \033[1;33m?\033[1;37m "; read resposta
     echo ""
@@ -622,49 +614,15 @@ if netstat -nltp|grep 'stunnel4' 1>/dev/null 2>/dev/null;then
 		clear
 		fun_conexao		
 	fi
-	if grep -w "$porta" $var_sqd > /dev/null 2>&1; then
-		echo -e "\033[1;31mPORTA EM USO PELO SQUID!"
-		echo ""
-		echo -e "\033[1;31mRetornando...\033[0m"
-		sleep 3
-		clear
-		fun_conexao
-	elif [[ "$porta" = '22' ]]; then
-		echo -e "\033[1;31mPORTA EM USO PELO SSH!"
-		echo ""
-		echo -e "\033[1;31mRetornando...\033[0m"
-		sleep 3
-		clear
-		fun_conexao
-	elif grep -E "$porta" /etc/ssh/sshd_config > /dev/null 2>&1; then
-		echo -e "\033[1;31mPORTA EM USO PELO SSH!"
-		echo ""
-		echo -ne "\033[1;32mDESEJA REMOVER A PORTA \033[1;31m$porta \033[1;32mDO SSH \033[1;33m? \033[1;37m[s/n]: "; read resp
-		echo ""
-		if [[ "$resp" = 's' ]]; then
-			echo -e "\033[1;32mREMOVENDO PORTA!"
-			echo ""
-			sed -i '/Port 443/d' /etc/ssh/sshd_config
-			sleep 1.5
-			fun_bar 'service ssh restart' 'sleep 3'
-			echo ""
-			sleep 3
-		else
-			echo -e "\033[1;31mRetornando...\033[0m"
-			sleep 3
-			clear
-			fun_conexao
-		fi
-	fi
+	verif_ptrs $porta
 	echo -e "\033[1;32mALTERANDO PORTA SSL TUNNEL!"
-	var2=$(sed -n '4 p' /etc/stunnel/stunnel.conf)
+	var2=$(sed -n '9 p' /etc/stunnel/stunnel.conf)
 	sed -i "s/$var2/accept = $porta/g" /etc/stunnel/stunnel.conf > /dev/null 2>&1
 	echo ""
 	fun_bar 'sleep 3'
 	echo ""
-	echo -e "\033[1;32mREINICIANDO SSL TUNNEL!"
-	echo ""
-	fun_bar 'service stunnel4 restart' 'service ssh restart'
+	echo -e "\033[1;32mREINICIANDO SSL TUNNEL!\n"
+	fun_bar 'service stunnel4 restart' '/etc/init.d/stunnel4 restart'
 	echo ""
 	netstat -nltp|grep 'stunnel4' > /dev/null && echo -e "\033[1;32mPORTA ALTERADA COM SUCESSO !" || echo -e "\033[1;31mERRO INESPERADO!"
 	sleep 3.5s
@@ -676,16 +634,17 @@ if netstat -nltp|grep 'stunnel4' 1>/dev/null 2>/dev/null;then
 		del_ssl () {
 		service stunnel4 stop
 		apt-get remove stunnel4 -y
+		apt-get autoremove stunnel4 -y
 		apt-get purge stunnel4 -y
 		rm -rf /etc/stunnel/stunnel.conf
 		rm -rf /etc/default/stunnel4
 		rm -rf /etc/stunnel/stunnel.pem
 		}
 		echo ""
-		fun_bar 'del_ssl' 'sleep3'
+		fun_bar 'del_ssl'
 		echo ""
 		echo -e "\033[1;32mSSL TUNNEL REMOVIDO COM SUCESSO!\033[0m"
-		sleep 4
+		sleep 3
 		fun_conexao
 	else
 		echo -e "\033[1;31mRetornando...\033[0m"
@@ -695,15 +654,13 @@ if netstat -nltp|grep 'stunnel4' 1>/dev/null 2>/dev/null;then
 else
 	clear
 	echo -e "\E[44;1;37m           INSTALADOR SSL TUNNEL             \E[0m"
-	echo ""
-	echo -e "\033[1;33mVC ESTA PRESTES A INSTALAR O SSL TUNNEL !\033[0m"
+	echo -e "\n\033[1;33mVC ESTA PRESTES A INSTALAR O SSL TUNNEL !\033[0m"
 	echo ""
 	echo -ne "\033[1;32mDESEJA CONTINUAR \033[1;31m? \033[1;33m[s/n]:\033[1;37m "; read resposta
 	if [[ "$resposta" = 's' ]]; then
+	echo -e "\n\033[1;33mDEFINA UMA PORTA PARA O SSL TUNNEL !\033[0m"
 	echo ""
-	echo -e "\033[1;33mDEFINA UMA PORTA PARA O SSL TUNNEL !\033[0m"
-	echo ""
-	echo -ne "\033[1;32mQUAL A PORTA \033[1;33m?\033[1;37m "; read porta
+	read -p "$(echo -e "\033[1;32mQUAL PORTA DESEJA UTILIZAR? \033[1;37m")" -e -i 3128 porta
 	if [[ -z "$porta" ]]; then
 		echo ""
 		echo -e "\033[1;31mPorta invalida!"
@@ -711,59 +668,41 @@ else
 		clear
 		fun_conexao
 	fi
-	verif_ptrs
+	verif_ptrs $porta
+	echo -e "\n\033[1;32mINSTALANDO O SSL TUNNEL !\033[1;33m"
 	echo ""
-	echo -e "\033[1;32mINSTALANDO O SSL TUNNEL !\033[1;33m"
-	echo ""
-	wget http://www.painelweb.tk/master/Install/stunnel4 > /dev/null 2>&1
 	fun_bar 'apt-get update -y' 'apt-get install stunnel4 -y'
+	echo -e "\n\033[1;32mCONFIGURANDO O SSL TUNNEL !\033[0m"
 	echo ""
-	echo -e "\033[1;32mCONFIGURANDO O SSL TUNNEL !\033[0m"
-	echo ""
-	if netstat -nltp|grep 'dropbear'> /dev/null; then
-		var3="dropbear"
-	else
-		var3="ssh"
-	fi
 	ssl_conf () {
-echo -e "client = no
-[$var3]
-cert = /etc/stunnel/stunnel.pem
-accept = $porta
-connect = 127.0.0.1:22" > /etc/stunnel/stunnel.conf
+    echo -e "cert = /etc/stunnel/stunnel.pem\nclient = no\nsocket = a:SO_REUSEADDR=1\nsocket = l:TCP_NODELAY=1\nsocket = r:TCP_NODELAY=1\n\n[stunnel]\nconnect = 127.0.0.1:22\naccept = ${porta}" > /etc/stunnel/stunnel.conf
     }
-    fun_bar 'ssl_conf' 'sleep 3'
-    cat stunnel4 > /etc/default/stunnel4
-    rm stunnel4
+    fun_bar 'ssl_conf'
+    echo -e "\n\033[1;32mCRIANDO CERTIFICADO !\033[0m"
     echo ""
-    echo -e "\033[1;32mCRIANDO CERTIFICADO !\033[0m"
-    echo ""
-    echo -e "\033[1;33mRESPONDA AS QUESTOES ABAIXO !\033[1;37m"
-    sleep 3
-    echo ""
-    openssl genrsa -out key.pem 2048
-    openssl req -new -x509 -key key.pem -out cert.pem -days 1095
-    cat key.pem cert.pem >> /etc/stunnel/stunnel.pem
-    rm key.pem cert.pem
-    clear
-    echo -e "\033[1;32mREINICIANDO O SSL TUNNEL !\033[0m"
+    ssl_certif () {
+    crt='FR'
+    openssl genrsa -out key.pem 2048 > /dev/null 2>&1
+    (echo $crt; echo $crt; echo $crt; echo $crt; echo $crt; echo $crt; echo $crt)|openssl req -new -x509 -key key.pem -out cert.pem -days 1050 > /dev/null 2>&1
+    cat cert.pem key.pem >> /etc/stunnel/stunnel.pem
+    rm key.pem cert.pem > /dev/null 2>&1
+    sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
+    }
+    fun_bar 'ssl_certif'
+    echo -e "\n\033[1;32mINICIANDO O SSL TUNNEL !\033[0m"
     echo ""
     fun_finssl () {
     service stunnel4 restart
-    service squid3 restart
-    service squid restart
-    service dropbear restart
     service ssh restart
+    /etc/init.d/stunnel4 restart
     }
-    fun_bar 'fun_finssl'
-    echo ""
-    netstat -nltp|grep 'stunnel4' > /dev/null && echo -e "\033[1;32mSSL TUNNEL INSTALADO COM SUCESSO !\033[1;31m PORTA: \033[1;33m$porta" || echo -e "\033[1;31mERRO INESPERADO!"
-    sleep 4
+    fun_bar 'fun_finssl' 'service stunnel4 restart'
+    echo -e "\n\033[1;32mSSL TUNNEL INSTALADO COM SUCESSO !\033[1;31m PORTA: \033[1;33m$porta\033[0m"
+    sleep 3
     clear
     fun_conexao
     else
-    echo ""
-    echo -e "\033[1;31mRetornando...\033[0m"
+    echo -e "\n\033[1;31mRetornando...\033[0m"
     sleep 3
     clear
     fun_conexao
@@ -781,13 +720,14 @@ fi
 var_sqdopc=$(netstat -nltp|grep 'squid'> /dev/null && echo -ne "REMOVER SQUID PROXY" || echo -ne "INSTALAR SQUID PROXY")
 echo -e "\E[44;1;37m          GERENCIAR SQUID PROXY           \E[0m"
 echo ""
-echo -e "\033[1;33mPORTAS\033[1;37m: \033[1;32m$sqdp"
-echo ""
-echo -e "\033[1;33m[\033[1;31m1\033[1;33m] $var_sqdopc \033[1;33m
-[\033[1;31m2\033[1;33m] ADICIONAR PORTA \033[1;33m
-[\033[1;31m3\033[1;33m] REMOVER PORTA\033[1;33m
-[\033[1;31m0\033[1;33m] VOLTAR\033[0m"
-echo ""
+echo -e "\033[1;33m PORTAS\033[1;37m: \033[1;32m$sqdp"
+echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo -e "\n\033[1;31m[\033[1;36m1\033[1;31m] \033[1;37m• \033[1;33m$var_sqdopc \033[1;33m
+[\033[1;36m2\033[1;31m] \033[1;37m• \033[1;33mADICIONAR PORTA \033[1;31m
+[\033[1;36m3\033[1;31m] \033[1;37m• \033[1;33mREMOVER PORTA\033[1;31m
+[\033[1;36m0\033[1;31m] \033[1;37m• \033[1;33mVOLTAR\033[0m"
+echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+
 echo -ne "\033[1;32mOQUE DESEJA FAZER \033[1;33m?\033[1;31m?\033[1;37m "; read x
 clear
 case $x in
@@ -884,7 +824,7 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 	do
 		clear
 	    opnp=$(cat /etc/openvpn/server.conf |grep "port" |awk {'print $2'})
-if [ -d /var/www/html/openvpn ] > /dev/nell; then
+	    if [ -d /var/www/html/openvpn ] > /dev/nell; then
 	    	ovpnweb=$(echo -e "\033[1;32mON")
 	    else
 	    	ovpnweb=$(echo -e "\033[1;31mOFF")
@@ -1116,7 +1056,7 @@ if [ -d /var/www/html/openvpn ] > /dev/nell; then
                 			done
                 		done
                 		tput cnorm
-}
+                	}
                 	echo ""
                 	echo -ne "\033[1;32mPERMITINDO MULTILOGIN\033[1;32m.\033[1;33m.\033[1;31m. \033[1;33m"
                 	helice
@@ -1246,7 +1186,7 @@ else
 	echo -ne "\033[1;32mPARA CONTINUAR CONFIRME SEU IP: \033[1;37m"; read -e -i $IP IP
 	if [[ -z "$IP" ]]; then
 				echo ""
-echo -e "\033[1;31mIP invalido!"
+				echo -e "\033[1;31mIP invalido!"
 				sleep 3
 				fun_conexao
 	fi
@@ -1524,18 +1464,18 @@ fun_socks () {
     	var_sks1="DESATIVAR SOCKS"
     else
     	sks='\033[1;31mOFF'
-    	sockspt="\033[1;31mINDISPONIVEL"
+    	sockspt="\033[1;31mDESATIVADO"
     	var_sks1="ATIVAR SOCKS"
     fi
-    echo -e "\E[44;1;37m            GERENCIAR PROXY SOCKS             \E[0m"
+    echo -e "\E[44;1;37m              GERENCIAR PROXY SOCKS               \E[0m"
     echo ""
-    echo -e "\033[1;33mPORTAS\033[1;37m: \033[1;32m$sockspt"
-    echo ""
-	echo -e "\033[1;33m[\033[1;31m1\033[1;33m] \033[1;33m$var_sks1\033[0m"
-	echo -e "\033[1;33m[\033[1;31m2\033[1;33m] \033[1;33mABRIR PORTA\033[0m"
-	echo -e "\033[1;33m[\033[1;31m3\033[1;33m] \033[1;33mALTERAR STATUS\033[0m"
-	echo -e "\033[1;33m[\033[1;31m0\033[1;33m] \033[1;33mVOLTAR\033[0m"
-	echo ""
+    echo -e "\033[1;33m PORTAS\033[1;37m: \033[1;32m$sockspt"
+    echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+	echo -e "\033[1;31m[\033[1;36m1\033[1;31m] \033[1;37m• \033[1;33m$var_sks1\033[0m"
+	echo -e "\033[1;31m[\033[1;36m2\033[1;31m] \033[1;37m• \033[1;33mABRIR PORTA\033[0m"
+	echo -e "\033[1;31m[\033[1;36m3\033[1;31m] \033[1;37m• \033[1;33mALTERAR STATUS\033[0m"
+	echo -e "\033[1;31m[\033[1;36m0\033[1;31m] \033[1;37m• \033[1;33mVOLTAR\033[0m"
+	echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 	echo -ne "\033[1;32mOQUE DESEJA FAZER \033[1;33m?\033[1;37m "; read resposta
 	if [[ "$resposta" = '1' ]]; then
 		if ps x | grep proxy.py|grep -v grep 1>/dev/null 2>/dev/null; then
@@ -1610,7 +1550,7 @@ fun_socks () {
 			fi
 			verif_ptrs
 			echo ""
-echo -e "\033[1;32mINICIANDO O PROXY SOCKS NA PORTA \033[1;31m$porta\033[1;33m"
+			echo -e "\033[1;32mINICIANDO O PROXY SOCKS NA PORTA \033[1;31m$porta\033[1;33m"
 			echo ""
 			abrirptsks () {
 				sleep 1
@@ -1694,20 +1634,8 @@ x="ok"
 fun_conexao () {
 while true $x != "ok"
 do
-sts1=$(netstat -nltp|grep 'squid' > /dev/null && echo -ne "\033[1;32mON" || echo -ne "\033[1;31mOFF")
-sts2=$(netstat -nltp|grep 'dropbear' > /dev/null && echo -ne "\033[1;32mON" || echo -ne "\033[1;31mOFF")
-sts3=$(netstat -nltp|grep 'stunnel4' > /dev/null && echo -ne "\033[1;32mON" || echo -ne "\033[1;31mOFF")
-sts4=$(ps x | grep proxy.py|grep -v grep 1>/dev/null 2>/dev/null && echo -ne "\033[1;32mON" || echo -ne "\033[1;31mOFF")
-if [[ -e /etc/openvpn/server.conf ]]; then 
-sts5=$(echo -ne "\033[1;32mON")
-else
-sts5=$(echo -ne "\033[1;31mOFF")
-fi
-if ps x | grep "limiter"|grep -v grep 1>/dev/null 2>/dev/null; then
-statuslimit="\033[1;32mATIVADO"
-else
-statuslimit="\033[1;31mDESATIVADO"
-fi
+stsl=$(ps x | grep "limiter"|grep -v grep > /dev/null && echo -e "\033[1;32m◉ " || echo -e "\033[1;31m○ ")
+stsu=$(ps x | grep "udpvpn"|grep -v grep > /dev/null && echo -e "\033[1;32m◉ " || echo -e "\033[1;31m○ ")
 if [[ "$(grep -c "Ubuntu" /etc/issue.net)" = "1" ]]; then
 system=$(cut -d' ' -f1 /etc/issue.net)
 system+=$(echo ' ')
@@ -1719,12 +1647,20 @@ system+=$(cut -d' ' -f3 /etc/issue.net)
 else
 system=$(cut -d' ' -f1 /etc/issue.net)
 fi
+_ons=$(ps -x | grep sshd | grep -v root | grep priv | wc -l)
+[[ "$(cat /etc/SSHPlus/Exp)" != "" ]] && _expuser=$(cat /etc/SSHPlus/Exp) || _expuser="0"
+[[ -e /etc/openvpn/openvpn-status.log ]] && _onop=$(grep -c "10.8.0" /etc/openvpn/openvpn-status.log) || _onop="0"
+[[ -e /etc/default/dropbear ]] && _drp=$(ps aux | grep dropbear | grep -v grep | wc -l) _ondrp=$(($_drp - 1)) || _ondrp="0"
+_onli=$(($_ons + $_onop + $_ondrp))
 _ram=$(printf ' %-9s' "$(free -h | grep -i mem | awk {'print $2'})")
 _usor=$(printf '%-8s' "$(free -m | awk 'NR==2{printf "%.2f%%", $3*100/$2 }')")
 _usop=$(printf '%-1s' "$(top -bn1 | awk '/Cpu/ { cpu = "" 100 - $8 "%" }; END { print cpu }')")
 _core=$(printf '%-1s' "$(grep -c cpu[0-9] /proc/stat)")
 _system=$(printf '%-14s' "$system")
 _hora=$(printf '%(%H:%M:%S)T')
+_onlin=$(printf '%-5s' "$_onli")
+_userexp=$(printf '%-5s' "$_expuser")
+_tuser=$(awk -F: '$3>=1000 {print $1}' /etc/passwd | grep -v nobody | wc -l)
 clear
 echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 echo -e "\E[41;1;37m               ❖ @FONTINELE ❖                \E[0m"
@@ -1733,19 +1669,58 @@ echo -e "\033[1;32mSISTEMA            MEMÓRIA RAM      PROCESSADOR "
 echo -e "\033[1;31mOS: \033[1;37m$_system \033[1;31mTotal:\033[1;37m$_ram \033[1;31mNucleos: \033[1;37m$_core\033[0m"
 echo -e "\033[1;31mHora:\033[1;37m $_hora     \033[1;31mEm uso: \033[1;37m$_usor \033[1;31mEm uso: \033[1;37m$_usop\033[0m"
 echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo ""
-echo -e "                \033[1;33m● \033[1;36mMODO DE CONEXAO \033[1;33m●\033[0m"
-echo ""
-echo -e "\033[1;33m[\033[1;31m1\033[1;33m] SQUID PROXY\033[1;33m $sts1\033[1;33m
-[\033[1;31m2\033[1;33m] DROPBEAR\033[1;33m $sts2\033[1;33m
-[\033[1;31m3\033[1;33m] OPENVPN\033[1;33m $sts5\033[1;33m
-[\033[1;31m4\033[1;33m] PROXY SOCKS\033[1;33m $sts4\033[1;33m
-[\033[1;31m5\033[1;33m] SSL TUNNEL\033[1;33m $sts3\033[1;33m
-[\033[1;31m6\033[1;33m] VOLTAR \033[1;32m<\033[1;33m<\033[1;31m< \033[1;33m
-[\033[1;31m0\033[1;33m] SAIR \033[1;32m<\033[1;33m<\033[1;31m< \033[0m"
-echo ""
+echo -e "\033[1;32mOnlines:\033[1;37m $_onlin     \033[1;31mExpirados: \033[1;37m$_userexp \033[1;33mTotal: \033[1;37m$_tuser\033[0m"
 echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo ""
+
+
+echo -e "\E[44;1;37m               ❖ MODO DE CONEXAO ❖                \E[0m"
+
+echo -e "\033[1;32mSERVICO: \033[1;33mAPACHE2 \033[1;32mPORTA: \033[1;37m$(netstat -nplt |grep 'apache2' | awk -F ":" {'print $4'} | xargs)"
+
+[[ "$(netstat -nplt |grep 'squid'| wc -l)" != '0' ]] && {
+	echo -e "\033[1;32mSERVICO: \033[1;33mSQUID \033[1;32mPORTA: \033[1;37m$(netstat -nplt |grep 'squid' | awk -F ":" {'print $4'} | xargs)"
+	sts1="\033[1;32m◉ "
+} || {
+	sts1="\033[1;31m○ "
+}
+
+[[ "$(netstat -nltp|grep 'dropbear' |wc -l)" != '0' ]] && {
+	echo -e "\033[1;32mSERVICO: \033[1;33mDROPBEAR \033[1;32mPORTA: \033[1;37m$(netstat -nplt |grep 'dropbear' | awk -F ":" {'print $4'} | xargs)"
+	sts2="\033[1;32m◉ "
+} || {
+	sts2="\033[1;31m○ "
+}
+
+[[ "$(netstat -nplt |grep 'openvpn' |wc -l)" != '0' ]] && {
+	echo -e "\033[1;32mSERVICO: \033[1;33mOPENVPN: \033[1;32mPORTA: \033[1;37m$(netstat -nplt |grep 'openvpn' |awk {'print $4'} |cut -d: -f2 |xargs)"
+	sts5="\033[1;32m◉ "
+} || {
+	sts5="\033[1;31m○ "
+}
+
+[[ "$(netstat -nplt |grep 'python' |wc -l)" != '0' ]] && {
+	echo -e "\033[1;32mSERVICO: \033[1;33mPROXY SOCKS \033[1;32mPORTA: \033[1;37m$(netstat -nplt |grep 'python' | awk {'print $4'} |cut -d: -f2 |xargs)"
+	sts4="\033[1;32m◉ "
+} || {
+	sts4="\033[1;31m○ "
+}
+[[ -e "/etc/stunnel/stunnel.conf" ]] && {
+	echo -e "\033[1;32mSERVICO: \033[1;33mSSL TUNNEL \033[1;32mPORTA: \033[1;37m$(netstat -nplt |grep 'stunnel' | awk {'print $4'} |cut -d: -f2 |xargs)"
+	sts3="\033[1;32m◉ "
+} || {
+	sts3="\033[1;31m○ "
+}
+echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo -e "\033[1;31m[\033[1;36m01\033[1;31m] \033[1;37m• \033[1;33mSQUID PROXY $sts1\033[1;31m
+[\033[1;36m02\033[1;31m] \033[1;37m• \033[1;33mDROPBEAR $sts2\033[1;31m
+[\033[1;36m03\033[1;31m] \033[1;37m• \033[1;33mOPENVPN $sts5\033[1;31m
+[\033[1;36m04\033[1;31m] \033[1;37m• \033[1;33mPROXY SOCKS $sts4\033[1;31m
+[\033[1;36m05\033[1;31m] \033[1;37m• \033[1;33mSSL TUNNEL $sts3\033[1;31m
+[\033[1;36m06\033[1;31m] \033[1;37m• \033[1;33mVOLTAR \033[1;32m<\033[1;33m<\033[1;31m< \033[1;31m
+[\033[1;36m00\033[1;31m] \033[1;37m• \033[1;33mSAIR \033[1;32m<\033[1;33m<\033[1;31m< \033[0m"
+
+echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+
 tput civis
 echo -ne "\033[1;32mOQUE DESEJA FAZER \033[1;33m?\033[1;31m?\033[1;37m "; read x
 tput cnorm
